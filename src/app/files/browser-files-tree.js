@@ -20,9 +20,9 @@ function FilesTree (name, storage) {
     split.forEach((pathPart, index) => {
       if (!crawlpath[pathPart]) crawlpath[pathPart] = {}
       if (index < split.length - 1) {
-        crawlpath = crawlpath[pathPart]
+        crawlpath = { isDirectory: true, children: crawlpath[pathPart], path }
       } else if (type === 'add') {
-        crawlpath[pathPart] = path
+        crawlpath[pathPart] = { isDirectory: false, path }
       } else if (type === 'remove' && crawlpath[pathPart]) {
         delete crawlpath[pathPart]
       }
@@ -111,11 +111,11 @@ function FilesTree (name, storage) {
     var split = path.split('/') // this should be unprefixed path
     var crawlpath = self.tree
     split.forEach((pathPart, index) => {
-      if (crawlpath[pathPart]) crawlpath = crawlpath[pathPart]
+      if (crawlpath[pathPart] && crawlpath[pathPart].children) crawlpath = crawlpath[pathPart].children
     })
 
     for (var item in crawlpath) {
-      tree[item] = { isDirectory: typeof crawlpath[item] !== 'string' }
+      tree[crawlpath[item].path] = { isDirectory: crawlpath[item].isDirectory }
     }
     callback(null, tree)
   }
